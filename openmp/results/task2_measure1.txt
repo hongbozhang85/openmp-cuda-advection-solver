@@ -1,0 +1,53 @@
+########### 8 threads #############
+Advection of a 100x20 global field on 8 threads for 10000 steps.
+Advection time 9.729e-02, GFLOPs rate=4.73e+00 (per core 5.91e-01)
+Average error of final field:  4.367e-01
+########### 16 threads #############
+Advection of a 100x20 global field on 16 threads for 10000 steps.
+Advection time 3.008e-01, GFLOPs rate=1.53e+00 (per core 9.56e-02)
+Average error of final field:  4.367e-01
+########### 8 threads #############
+Advection of a 200x20 global field on 8 threads for 10000 steps.
+Advection time 1.205e-01, GFLOPs rate=7.63e+00 (per core 9.54e-01)
+Average error of final field:  6.535e-01
+########### 16 threads #############
+Advection of a 200x20 global field on 16 threads for 10000 steps.
+Advection time 2.881e-01, GFLOPs rate=3.19e+00 (per core 2.00e-01)
+Average error of final field:  6.535e-01
+########### 8 threads #############
+Advection of a 300x20 global field on 8 threads for 10000 steps.
+Advection time 1.356e-01, GFLOPs rate=1.02e+01 (per core 1.27e+00)
+Average error of final field:  5.178e-01
+########### 16 threads #############
+Advection of a 300x20 global field on 16 threads for 10000 steps.
+Advection time 2.774e-01, GFLOPs rate=4.98e+00 (per core 3.11e-01)
+Average error of final field:  5.178e-01
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+r3051
+
+======================================================================================
+                  Resource Usage on 2017-05-26 18:34:04:
+   Job Id:             5136185.r-man2
+   Project:            c37
+   Exit Status:        0
+   Service Units:      0.60
+   NCPUs Requested:    16                     NCPUs Used: 16              
+                                           CPU Time Used: 00:00:07                                   
+   Memory Requested:   64.0GB                Memory Used: 0B              
+   Walltime requested: 00:03:00            Walltime Used: 00:00:45        
+   JobFS requested:    100.0MB                JobFS used: 0B              
+======================================================================================

@@ -1,0 +1,37 @@
+########### 8 threads #############
+Advection of a 2000x2000 global field on 8 threads for 100 steps.
+Advection time 1.876e+00, GFLOPs rate=4.90e+00 (per core 6.13e-01)
+Average error of final field:  6.806e-07
+########### 8 threads #############
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+Advection time 2.452e+00, GFLOPs rate=3.75e+00 (per core 2.34e-01)
+Average error of final field:  6.806e-07
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+r2414
+
+======================================================================================
+                  Resource Usage on 2017-05-26 12:51:19:
+   Job Id:             5125649.r-man2
+   Project:            c37
+   Exit Status:        0
+   Service Units:      12.27
+   NCPUs Requested:    16                     NCPUs Used: 16              
+                                           CPU Time Used: 00:00:55                                   
+   Memory Requested:   64.0GB                Memory Used: 0B              
+   Walltime requested: 00:03:00            Walltime Used: 00:15:20        
+   JobFS requested:    100.0MB                JobFS used: 0B              
+======================================================================================

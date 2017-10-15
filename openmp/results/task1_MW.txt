@@ -1,0 +1,24 @@
+########### 8 threads #############
+Advection of a 2000x2000 global field on 8 threads for 100 steps.
+Advection time 4.203e+00, GFLOPs rate=2.19e+00 (per core 2.74e-01)
+Average error of final field:  6.806e-07
+########### 8 threads #############
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+Advection time 1.590e+01, GFLOPs rate=5.79e-01 (per core 3.62e-02)
+Average error of final field:  6.806e-07
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396

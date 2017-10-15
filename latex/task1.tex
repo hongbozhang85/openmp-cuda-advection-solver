@@ -1,0 +1,212 @@
+\section{Task 1 Parallelization via 1D Decomposition and Simple Directives}
+
+In this section, we will use \lstinline{parallel for} to parallelize two nesting loops, namely \textit{Stage1} and \textit{Stage2}.
+If one takes parallelizing the outer or inner loop, interchanging the loop order and scheduling the iterations in a block or cyclic style into consideration,
+there are $2\times2\times2=8$ possible configurations for each nesting loop. 
+Therefore, there are $8\times8=64$ possible configurations of parallelization in total. 
+However, most of them are not interesting.
+Consequently, in this report, we will restrict to the case that the parallelization configurations of \textit{Stage1} and \textit{Stage2} identical.
+In this case, only 8 configurations are considered. 
+In certain subsection, we also add a brief comment on the case where configurations of \textit{Stage1} and \textit{Stage2} are different.
+
+In scheduling part, we will only use \lstinline{static}, rather than dynamics,
+since there is no obviously load inbalance. 
+Furthermore, we notice that the \lstinline{i} loop indice is the one contiguous in memory (column major).
+The convention in this report is that \lstinline{i} is row indice and \lstinline{j} is column indice.
+
+\subsection{Maximize performance}
+
+\begin{lstlisting}[language=c]
+// 1. maximize performance
+#pragma omp parallel for schedule(static) default(shared) private(i)
+    for (j=0; j < N+1; j++) // advection update stage 1
+      for (i=0; i < M+1; i++) 
+	V(ut,i,j) = 0.25*(V(u,i,j) + V(u,i-1,j) + V(u,i,j-1) + V(u,i-1,j-1))
+	  -0.5*dt*(sy*(V(u,i,j) + V(u,i,j-1) - V(u,i-1,j) - V(u,i-1,j-1)) +
+		   sx*(V(u,i,j) + V(u,i-1,j) - V(u,i,j-1) - V(u,i-1,j-1)));
+#pragma omp parallel for schedule(static) default(shared) private(i)
+    for (j=0; j < N; j++) // advection update stage 2
+      for (i=0; i < M; i++) 
+	V(u, i, j) +=
+	  - dtdy * (V(ut,i+1,j+1) + V(ut,i+1,j) - V(ut,i,j) - V(ut,i,j+1))
+	  - dtdx * (V(ut,i+1,j+1) + V(ut,i,j+1) - V(ut,i,j) - V(ut,i+1,j));
+\end{lstlisting}
+
+Since the default value of chuck size is loop number divdes by number of threads.
+In this configuration, we assign (roughly) a block with $N/num\_threads$ columns to each thread.
+In this case, the performance will be improved according to following aspects.
+\begin{itemize}
+\item for each nesting loop, there is only one OpenMP parallel region entry/exit. 
+\item a contiguous block of memory is operated in the for loop, since the inner loop indice is \lstinline{i} (column major).
+\item the cache miss of coherent reads only lies at the boundary of adjacent blocks and we use a block fashion schedule (rather than cyclic shedule), the coherent read cache miss is also minimized.
+\item the cache miss of coherent writes only happens when the tail of one block and the head of the next block lies in the same cache line, so in this case, there is at most one coherent write cache miss between two nearby blocks.
+\end{itemize}
+Consequently, I choose this configuration as the best performing one.
+
+\subsection{Maximize the number of OpenMP parallel region entry/exits}
+
+\begin{lstlisting}[language=c]
+// 2. maximize the number of OpenMP parallel region entry/exits
+    if ( N > M ) {
+      for (j=0; j < N+1; j++) // advection update stage 1
+#pragma omp parallel for schedule(static) default(shared)
+        for (i=0; i < M+1; i++) 
+  	V(ut,i,j) = 0.25*(V(u,i,j) + V(u,i-1,j) + V(u,i,j-1) + V(u,i-1,j-1))
+  	  -0.5*dt*(sy*(V(u,i,j) + V(u,i,j-1) - V(u,i-1,j) - V(u,i-1,j-1)) +
+  		   sx*(V(u,i,j) + V(u,i-1,j) - V(u,i,j-1) - V(u,i-1,j-1)));
+      for (j=0; j < N; j++) // advection update stage 2
+#pragma omp parallel for schedule(static) default(shared)
+        for (i=0; i < M; i++) 
+  	V(u, i, j) +=
+  	  - dtdy * (V(ut,i+1,j+1) + V(ut,i+1,j) - V(ut,i,j) - V(ut,i,j+1))
+  	  - dtdx * (V(ut,i+1,j+1) + V(ut,i,j+1) - V(ut,i,j) - V(ut,i+1,j));
+    } else {
+      for (i=0; i < M+1; i++) // advection update stage 1
+#pragma omp parallel for schedule(static) default(shared)
+        for (j=0; j < N+1; j++) 
+  	V(ut,i,j) = 0.25*(V(u,i,j) + V(u,i-1,j) + V(u,i,j-1) + V(u,i-1,j-1))
+  	  -0.5*dt*(sy*(V(u,i,j) + V(u,i,j-1) - V(u,i-1,j) - V(u,i-1,j-1)) +
+  		   sx*(V(u,i,j) + V(u,i-1,j) - V(u,i,j-1) - V(u,i-1,j-1)));
+      for (i=0; i < M; i++) // advection update stage 2
+#pragma omp parallel for schedule(static) default(shared)
+        for (j=0; j < N; j++) 
+  	V(u, i, j) +=
+  	  - dtdy * (V(ut,i+1,j+1) + V(ut,i+1,j) - V(ut,i,j) - V(ut,i,j+1))
+  	  - dtdx * (V(ut,i+1,j+1) + V(ut,i,j+1) - V(ut,i,j) - V(ut,i+1,j));
+    }
+\end{lstlisting}
+
+The reason of choosing this configuration is obviously. 
+Parallel the inner loop will increase the OpenMP parallel region entry/exits.
+For each outer loop iteration, there will be one parallel region entry, exit and synchronization.
+Therefore, there will be $\max{\mathcal{O}(M),\mathcal{O}(N)}$ times entry/exit in total.
+I add a branch statement \lstinline{if ( N > M )} at the begining to enforce the maximum between N and M.
+
+
+\subsection{Maximize shared cache misses involving coherent reads}
+
+\begin{lstlisting}[language=c]
+// 3. maximize shared cache misses involving coherent reads
+#pragma omp parallel for schedule(static,1) default(shared) private(i)
+    for (j=0; j < N+1; j++) // advection update stage 1
+      for (i=0; i < M+1; i++) 
+	V(ut,i,j) = 0.25*(V(u,i,j) + V(u,i-1,j) + V(u,i,j-1) + V(u,i-1,j-1))
+	  -0.5*dt*(sy*(V(u,i,j) + V(u,i,j-1) - V(u,i-1,j) - V(u,i-1,j-1)) +
+		   sx*(V(u,i,j) + V(u,i-1,j) - V(u,i,j-1) - V(u,i-1,j-1)));
+#pragma omp parallel for schedule(static,1) default(shared) private(i)
+    for (j=0; j < N; j++) // advection update stage 2
+      for (i=0; i < M; i++) 
+	V(u, i, j) +=
+	  - dtdy * (V(ut,i+1,j+1) + V(ut,i+1,j) - V(ut,i,j) - V(ut,i,j+1))
+	  - dtdx * (V(ut,i+1,j+1) + V(ut,i,j+1) - V(ut,i,j) - V(ut,i+1,j));
+\end{lstlisting}
+
+The coherent read cache misses occur at the boundary of two nearby blocks.
+To be more specific, in the \textit{Stage1}, the read cache miss happens at \lstinline{V(u,*,threadId*blockSize)}, where \lstinline{u} is the top-left corner of halo. (Of course, read cache miss also happens at halo.)
+While in the \textit{Stage2}, the read cache miss happens at 
+\lstinline{V(ut,*,(threadId+1)*blockSize)}.
+Every thread will meet $(N/num\_threads/blockSize)*(M/cache\_width)$ read cache misses, where $cache\_width$ is the width of cache line in the unit of \lstinline{sizeof(double)}.
+Therefore, in order to maximize the read cache misses, I reduce the block size to $1$ (which is essentially interleave the iterations). 
+In this case, every thread will meet $(N/num\_threads)*(M/cache\_width)$ read cache misses.
+
+\subsection{Maximize shared cache misses involving coherent writes}
+
+\begin{lstlisting}[language=c]
+// 4. maximize shared cache misses involving coherent writes
+    for (j=0; j < N+1; j++) // advection update stage 1
+#pragma omp parallel for schedule(static,1) default(shared)
+      for (i=0; i < M+1; i++) 
+	V(ut,i,j) = 0.25*(V(u,i,j) + V(u,i-1,j) + V(u,i,j-1) + V(u,i-1,j-1))
+	  -0.5*dt*(sy*(V(u,i,j) + V(u,i,j-1) - V(u,i-1,j) - V(u,i-1,j-1)) +
+		   sx*(V(u,i,j) + V(u,i-1,j) - V(u,i,j-1) - V(u,i-1,j-1)));
+
+    for (j=0; j < N; j++) // advection update stage 2
+#pragma omp parallel for schedule(static,1) default(shared)
+      for (i=0; i < M; i++) 
+	V(u, i, j) +=
+	  - dtdy * (V(ut,i+1,j+1) + V(ut,i+1,j) - V(ut,i,j) - V(ut,i,j+1))
+	  - dtdx * (V(ut,i+1,j+1) + V(ut,i,j+1) - V(ut,i,j) - V(ut,i+1,j));
+\end{lstlisting}
+
+The coherent write cache miss happens when the data (\lstinline{u} or \lstinline{ut}) used by different threads lie in the same cache line.
+Let's look into this configuration with more details. 
+In this configuration, we use cyclic scheduling with the block size is $1$ and parallel the inner loop (\lstinline{i} the row indice), therefore the nearby \lstinline{u} or \lstinline{ut} are written by different threads. 
+For example, there are $4$ threads in total, \lstinline{V(u,1,j)} is operated by thread0, \lstinline{V(u,2,j)} is operated by thread1, \lstinline{V(u,3,j)} is operated by thread2, \lstinline{V(u,4,j)} is operated by thread3, and then cyclic.
+If the width of cache line is longer than $4$ doubles, then every write by one thread (e.g. \lstinline{V(u,1,j)} by thread0) will cause the corresponding cache line of all other processors change into invalidate state. When other threads write (e.g. \lstinline{V(u,2,j)} by thread1), the coherent write cache miss occurs. 
+Consequently, almost every write will cause coherent write cache miss. Hence this configuration maximize the cache misses involving coherent write.
+
+
+\subsection{Other configurations}
+Here we will briefly discuss other configurations which hasn't mention above.
+It is also possible that the first nesting loop and second nesting loop don't have the same parallel configurations. However, in this case, there will lots of nromal cache misses. While the coherent read/write cache misses will not become more than those shown in previous subsections.
+
+
+
+\subsection{Experiment results}
+We choose $M=N=2000$ and a large $r=100$ to maximize the difference between different configurations.
+We conduct experiments for all the four configurations with $p=8$ and $p=16$ to reflect the difference between
+inner socket and intra socket.
+For the case of $p=8$, we invoke \lstinline{numactl --cpunodebind=0 --membind=0} to enforce all 8 threads run on 
+a single socket.
+The boundary update is not parallized for all the configurations. The boundary parallelization will be 
+shown in next subsection.
+The "Max Perform" is abbreviation of "Maximize Performance". The "Max Paral Entry"
+is short for "Maximize Parallel Region Entry/Exists". The "Max Read/Write Miss" is short for 
+"Maximize Shared Cache Misses Involving Coherent Read/Writes".
+
+
+\begin{table}[h]
+	\centering
+	\caption{The performance of four different OpemMP parallel configurations.}
+	\label{tab1}
+	\begin{tabular}{lllll}
+		\hline
+		             & Max Perform & Max Paral Entry & Max Read Miss & Max Write Miss \\ \hline
+		$p=8$            & $4.978\times 10^{-1}$s &  $1.876$s &   $4.983\times 10^{-1}$s &  $4.203$s \\
+		$p=16$           & $3.717\times 10^{-1}$s & $2.452$s  & $5.968\times 10^{-1}$s & $15.90$s \\ \hline
+	\end{tabular}
+\end{table}
+
+As shown in Tab \ref{tab1}, we can see that the max performance configuration is indeed fastest among the all 4 configurations.
+Furthermore, the maximize parallel region entry/exists is the worst among all. 
+The difference among maximize performance, max read miss and max write miss is relative small for $p=8$, at the order of $10^{-4}$s.
+Since in this case, all the buffer are storaged in the same socket, the difference among these three are relative small.
+However, in the case of $p=16$, i.e., all threads are distributed on two sockets, so a read/write cache miss will
+be updated from the other socket, which is much more expensive. Hence, the difference among max performance, max
+read caches misses and max write caches miss are relative large.
+
+Furthermore, due to the more threads, the more coherent cache misses, the cost of $p=16$ is larger than half of cost of $p=8$.
+
+\subsection{Boundary update loops}
+
+Both boundary update loops are parallel with scheduling the iterations in a block fashion.
+
+The data in left and right halos are contiguous in memory storage. 
+Therefore parallel in block will reduce cache misses, hence improve performance.
+
+The data in top and bottom halos are not contiguous in memory. 
+However, we also parallel them in block with block size identical to best performance configuration. 
+Therefore, in this way, it will reduce the coherent cache miss when update field \lstinline{u} and \lstinline{ut} at later stage.
+
+Actually, if \lstinline{M} and \lstinline{N} are small enough, it is better to use the first thread to update left halo and to use the last thread to update the right halo.
+
+Furthermore, parallel the boundary update loop will reduce the computation cost as well.
+
+However, the drawback of parallel the boundary update loop is that it will double the parallel region entry/exists,
+which is expensive. So there is a competition between this two terms.
+
+We do experiments with $M=N=2000, r=100$, and the results are shown in Tab \ref{tab2}.
+
+\begin{table}[h]
+	\centering
+	\caption{Whether to parallel boundary update}
+	\label{tab2}
+	\begin{tabular}{lllll}
+		\hline
+		             & Not parallel boundary update & parallel boundary update\\ \hline
+		$p=8$            & $4.978\times 10^{-1}$s & $4.934\times 10^{-1}$s  \\
+		$p=16$           & $3.717\times 10^{-1}$s & $3.687\times 10^{-1}$s   \\ \hline
+	\end{tabular}
+\end{table}
+
+From the above results,we can see that the performance get better with the order of $10^{-2}$s.

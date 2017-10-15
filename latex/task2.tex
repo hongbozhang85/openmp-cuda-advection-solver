@@ -1,0 +1,67 @@
+\section{Task 2 Performance Modelling of Shared Memory Programs}
+
+\subsection{Modelling}
+The overall cost of the program can be divided into sequential part cost and parallel part cost.
+\[
+	t = t_{seq} + t_{par}
+\]
+However, the computational load of sequential part is much smaller than the parallel part,
+so we neglect this term safely. 
+The parallel term is constituted by four parts, including parallel region entry/exist cost $t_s$,
+the cost of double words of cache miss for coherent read $t_{w,R}$,
+the cost of double words of cache miss for coherent write $t_{w,W}$
+and the cost of computation $t_f$.
+
+Consequently, the overall cost can be modelled as 
+\begin{eqnarray*}
+	t = n_E t_s + n_R t_{w,R} + n_W t_{w,W} + n_f t_f + \textrm{cache misses from halo part} \\
+	 = 4\times r \cdot t_s + \frac{M\cdot Q}{8}\cdot (2 \times r - 1)  \cdot t_{w,R} + Q \cdot (2 \times r -1 ) \cdot t_{w,W} + r\cdot \frac{M\cdot N}{Q} \cdot t_f
+ \end{eqnarray*}
+where $n_E, n_R, n_W, n_f$ is the number of occurences of corresponding terms.
+We neglect the cache misses from halo part, since this term is much smaller than those of non-halo part.
+Since we both parallel the boundary update loops and advection field update loops,
+$n_E$ is $4\cdot r$.
+Since in the maximize performance configuration, we divide the whole field into blocks in column direction,
+the read cache miss occurs on the boundary of two adjacent blocks,
+and each cache line has $8$ doubles, so $n_R = \frac{M\cdot Q}{8}\cdot (2 \times r - 1)$,
+the $( 2 \times r - 1)$ reflects the fact that in the first r loop iteration, there is no coherent
+read cache miss of u field. The coherent write cache miss comes from two adjacent block shares 
+one cache line, so there will be one write cache miss between two blocks, the term $(2\times r-1)$
+is similar to that in $t_{w,R}$ term, so $n_W = Q \cdot (2 \times r -1 )$. Finally, the $t_f$ contains
+$23$ FLOPS and serveral interger operations.
+
+\subsection{Measurement}
+ 
+Firstly, we measure the parallel region entry/exits time $t_s$.
+We run two experiments with $M=N=20$ and $r=100$. In the first experiment, the OpenMP will not be used,
+In this case, the time cost is $2.5\times 10^{-4}$s.
+While in the second experiment, we will use OpenMP with $p=1$.
+In this case, the time cost is $5.4\times 10^{-4}$s.
+Consequently, the $t_s = (5.4-2.5)\times 10^{-4} / r = 2.9 \times 10^{-6}$s.
+
+Next we will measure the $t_{w,R}$ and $t_{w,W}$. Since the $t_{w,W}$ term will not depend on $M$, but $t_{w,R}$ does,
+so we perform two set of experiments with $p=8$ and $p=16$. 
+For each set, we keep $N=2000, r=10000$, but varying $M = 1000, 2000, 3000$.
+
+The experiment results are shown in Tab \ref{tab2_1}
+
+\begin{table}[h]
+	\centering
+	\caption{Measure cost of coherent cache miss}
+	\label{tab2_1}
+	\begin{tabular}{lllll}
+		\hline
+		             & $M = 1000$ & $M = 2000$ & $M = 3000$ \\ \hline
+		$p=8$            & $22.33$s &  $49.03$s &   $73.16$s \\
+		$p=16$           & $8.764$s & $24.37$s & $39.12$s  \\ \hline
+	\end{tabular}
+\end{table}
+
+From above results, we can get for inner socket ($p=8$), $t_{w,R} = 1.2\times 10^{-6}$s,
+and for intra socket ($p=16$), $t_{w,R} = 3.2\times 10^{-7}$s. In fact, intra socket time should be larger than inner socket time. $t_{w,W}$ is negative in both cases. These un-reasonable results are due to my inappriciate choose of $M$ and $N$. 
+
+I have no time to choose a set of better $M,N,r$.
+
+\subsection{Experiments with $p=8$ and $p=16$}
+
+\subsection{Prediction}

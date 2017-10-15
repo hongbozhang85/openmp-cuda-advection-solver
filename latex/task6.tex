@@ -1,0 +1,23 @@
+\section{Task 6 Optimized GPU Implementation}
+
+I use shared memory to do optimization. Since access to shared memory is much 
+faster than the access to the global memory. It will improve the performance 
+by reduce the memory access time. In every r iteration, using shared memory will
+have overhead of copying from global memory to local memory and several synchronization.
+Consequently, the two effects will compete.
+
+I implement in following steps.
+ 0. update halo of u field. \\
+ 1. copy boundary from global memory u to shared memory cu. \\
+ 2. copy center grid from global memory u to shared memory cu. \\
+ 3. synchronize \\
+ 4. updateAdvect1 of cu, cut \\
+ 5. synchronize \\
+ 6. updateAdvect2 of cu, cut \\
+ 7. synchronize \\
+ 8. write cu back to u \\
+
+I do experiment with $M=N=600, r=10, Gx=Gy=2, Bx=By=16$. 
+The optimized time cost is $1.987\times 10^{-3}$.
+While the non-optimized time cost is $6.221\times 10^{-2}$.
+So it improves a lot.

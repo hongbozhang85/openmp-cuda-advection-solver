@@ -1,0 +1,54 @@
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 1x16 decomposition
+Advection time 3.665e-01, GFLOPs rate=2.51e+01 (per core 1.57e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 2x8 decomposition
+Advection time 3.663e-01, GFLOPs rate=2.51e+01 (per core 1.57e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 4x4 decomposition
+Advection time 3.688e-01, GFLOPs rate=2.49e+01 (per core 1.56e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 8x2 decomposition
+Advection time 3.647e-01, GFLOPs rate=2.52e+01 (per core 1.58e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 16x1 decomposition
+Advection time 8.574e-01, GFLOPs rate=1.07e+01 (per core 6.71e-01)
+Average error of final field:  6.895e-07
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+r3256
+
+======================================================================================
+                  Resource Usage on 2017-05-26 17:04:41:
+   Job Id:             5134011.r-man2
+   Project:            c37
+   Exit Status:        0
+   Service Units:      0.51
+   NCPUs Requested:    16                     NCPUs Used: 16              
+                                           CPU Time Used: 00:00:38                                   
+   Memory Requested:   64.0GB                Memory Used: 0B              
+   Walltime requested: 00:03:00            Walltime Used: 00:00:38        
+   JobFS requested:    100.0MB                JobFS used: 0B              
+======================================================================================

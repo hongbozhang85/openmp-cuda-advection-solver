@@ -1,0 +1,38 @@
+########### SIMD #############
+Advection of a 200x200 global field on 8 threads for 100 steps.
+Advection time 4.295e-03, GFLOPs rate=2.14e+01 (per core 2.68e+00)
+Average error of final field:  6.804e-04
+########### NO SIMD #############
+Advection of a 200x200 global field on 8 threads for 100 steps.
+	using extra optimization methods
+Advection time 5.222e-03, GFLOPs rate=1.76e+01 (per core 2.20e+00)
+Average error of final field:  6.804e-04
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+r2454
+
+======================================================================================
+                  Resource Usage on 2017-05-26 18:22:55:
+   Job Id:             5135849.r-man2
+   Project:            c37
+   Exit Status:        0
+   Service Units:      0.56
+   NCPUs Requested:    16                     NCPUs Used: 16              
+                                           CPU Time Used: 00:00:00                                   
+   Memory Requested:   64.0GB                Memory Used: 0B              
+   Walltime requested: 00:03:00            Walltime Used: 00:00:42        
+   JobFS requested:    100.0MB                JobFS used: 0B              
+======================================================================================

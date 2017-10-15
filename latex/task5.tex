@@ -1,0 +1,45 @@
+\section{Task 5 Baseline GPU Implementation}
+
+I create new kernal functions to parallel 2D. 
+
+\subsection{Comparison of $1\times B$ vs $B \times 1$ blocks}
+I have run two experiments with $M=N=600, r=10, Bx=By=16$,
+and vary $(Gx,Gy) = (1,32), (32,1)$.
+The time cost of $(1,32)$ is $6.359 \times 10^{-2}$s,
+while the time cost of $(32,1)$ is $5.867 \times 10^{-2}$s.
+
+\subsection{Optimize combination}
+
+
+%There are $Gx \cdot Gy \cdot Bx \cdot By$ threads, and $M \cdot N$ field grids.
+%So the number of average elements computed by a single threads is 
+%$ \frac{M \cdot N}{Gx \cdot Gy \cdot Bx \cdot By}$ which is usually larger than one.
+%Therefore the key issue in this problem is load balance.
+%In order to keep load balance, the following relation should be satisfied.
+%\[
+%	Gx \cdot Bx = N \\
+%	Gy \cdot By = M
+%\]
+
+Since a warp include 32 threads, the $Bx \cdot By$ should 
+be better a multiplier of 32.
+
+According to above analysis, we conduct following experiments.
+Firstly, we keep $M=N=600$, then varying 
+$(Gx, Gy, Bx,By) = (3,3, 4, 8), (4,8,3,3)$. 
+The first set satisfies the warp condition, but the second doesn't satisfy.
+The time cost of first set is $4.112\times 10^{-2}$s, while the 
+time cost of second set is $8.339\times 10^{-2}$s.
+
+\subsection{Speedup}
+With the parameter $M=N=600, r=10$, I run three experiments to calculate the speedups.
+The time cost on host is $5.756\times 10^{-2}$s, the time cost of single GPU thread is
+$5.165$s. While the time cost of $(Gx, Gy, Bx, By) = (3,3,4,8)$ is $1.823\times 10^{-3}$s.
+So the speedup to host is 1.4 and the speedup to a single thread is 62.
+
+\subsection{Overhead}
+In order to get the overhead of invoking kernal. We choose $M=N=r=Bx=By=Gx=Gy=1$.
+The experiment result is $6.962\times 10^{-4}$s. In a computation, it will invoke
+the kernal for 4 times, so the every time of each kernal is $1.7\times 10^{-4}$s. 
+Since it is much larger than the computation time, we can safely take this value 
+as the overhead of invoking kernal.

@@ -1,0 +1,24 @@
+\section{Task 7 Comparison of the Programming Models}
+
+OpenMP is the easiest to program. You just write the serial program firstly, and
+add some directives. It is relative easy to debug.
+
+CUDA is also easy to program. But if one want to write a program with high efficieny,
+it will become difficult. Since there are many kinds of memories, including the 
+global mem, shared mem, constant mem and texture mem, and it requires lots of
+skills and experiences to fully make use of all kinds of memories. It is also
+relative easy to debug. The speedup is 
+
+MPI is the most difficult to program. It is difficult to design the message passing
+strategy, to implement the parallel code. And the most important is that it is very 
+difficult to debug.
+
+The speedup cannot be compared directly. 
+In fact, for $M=N=600, r=10$ and $4$ threads/processors, the speedup of Cuda is $3\%$,
+which is much slower than CPU. Since the strategy of GPU is different from CPU.
+There are lots of SP on a GPU. The strategy of GPU speedup is to use lots of SP
+to do SIMD calculations. However, for OpenMP and MPI, there will not such many
+threads/processors as GPU's SP. But every thread/processor will run much faster 
+than SP in GPU. The speedup between MPI and OpenMP is case by case. It will
+determined by the program. Generally, the prefactor of $t_s$ term in OpenMP will be 
+smaller than that in MPI.

@@ -1,0 +1,41 @@
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 1x16 decomposition
+Advection time 3.714e-01, GFLOPs rate=2.48e+01 (per core 1.55e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 2x8 decomposition
+Advection time 4.081e-01, GFLOPs rate=2.25e+01 (per core 1.41e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 4x4 decomposition
+Advection time 3.715e-01, GFLOPs rate=2.48e+01 (per core 1.55e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 8x2 decomposition
+Advection time 3.753e-01, GFLOPs rate=2.45e+01 (per core 1.53e+00)
+Average error of final field:  6.806e-07
+##########################
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+	using a 16x1 decomposition
+Advection time 8.690e-01, GFLOPs rate=1.06e+01 (per core 6.62e-01)
+Average error of final field:  6.895e-07
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397
+r2397

@@ -1,0 +1,36 @@
+\section{Task3 Parallization via 2D Decomposition and an Extended Parallel Region}
+
+We parallel via 2D decomposition within one parallel region.
+It requires several synchronize to make sure it work correctly.
+The directive should be put outside the r loop.
+And it is faster than put it inside the r loop by $10^{-3}$s with $M=N=2000, r=100$ from
+my experiments.
+
+We choose $M=N=2000, r=100$ and $p=16$, but varying $P$. The experiment results
+are shown in Tab \ref{tab3_1}.
+
+
+\begin{table}[h]
+	\centering
+	\caption{2D distribution with varying $P$}
+	\label{tab3_1}
+	\begin{tabular}{llllll}
+		\hline
+		p          & 1 & 2 & 4 & 8 & 16 \\ \hline
+		time            & $3.677\times 10^{-1}$s &  $3.696\times 10^{-1}$s &   $3.726\times 10^{-1}$s &   $3.750\times 10^{-1}$s &   $8.455\times 10^{-1}$s \\
+		\hline
+	\end{tabular}
+\end{table}
+
+From the results, comparing to 1D $3.687\times 10^{-3}$s, when $p=1$ increase the performance by $10^{-3}$s. while the
+other value of $p$ doesn't improve the performance at all. This is because, for $p=1$, the 2D case will have less
+parallel region than 1D case, since there is only one parallel region. So indeed, having only one parallel region
+will improve the performance.
+However, for other value of $p$, although it will reduce the number of parallel region entry/exits, it also increases
+the coherent cache miss. The number of synchronize is the same from 1D and 2D cases.
+As a result, for $p>1$, the performance reduced.
+
+In MPI case, comparing to 1D, 2D case will increase the number of $t_s$. The number of $t_w$ may increase or decrease, depending
+on the value of $M,N, P$ and $Q$. 
+But in OpenMP, the number of $t_s$ in 2D is unchanged or decrease comparing to 1D, depending on how to program. 
+And generally Openmp will increase $t_w$ terms.

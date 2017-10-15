@@ -1,0 +1,13 @@
+\section{Task 4 Optional}
+
+We use the \lstinline{#pragma omp simd} to improve the performance further.
+I only apply this extra optimization to 1D case. However,
+it is easy to extends to 2D case.
+
+I do two experiments with $M=N=200$ and $r=100$.
+With simd, the time cost is $4.295\times 10^{-3}$s. While without simd,
+the time cost is $5.222\times 10^{-3}$s.
+
+Obviously, it has improved a lot.
+
+

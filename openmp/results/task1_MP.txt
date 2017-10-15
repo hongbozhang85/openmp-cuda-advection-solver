@@ -1,0 +1,40 @@
+openmp(3):ERROR:150: Module 'openmp' conflicts with the currently loaded module(s) 'openmpi/1.6.3'
+openmp(3):ERROR:102: Tcl command execution failed: source /opt/Modules/extensions/extensions.tcl
+
+########### 8 threads #############
+Advection of a 2000x2000 global field on 8 threads for 100 steps.
+Advection time 4.983e-01, GFLOPs rate=1.85e+01 (per core 2.31e+00)
+Average error of final field:  6.806e-07
+########### 8 threads #############
+Advection of a 2000x2000 global field on 16 threads for 100 steps.
+Advection time 3.717e-01, GFLOPs rate=2.48e+01 (per core 1.55e+00)
+Average error of final field:  6.806e-07
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+r2396
+
+======================================================================================
+                  Resource Usage on 2017-05-26 12:27:41:
+   Job Id:             5125324.r-man2
+   Project:            c37
+   Exit Status:        0
+   Service Units:      8.79
+   NCPUs Requested:    16                     NCPUs Used: 16              
+                                           CPU Time Used: 00:00:11                                   
+   Memory Requested:   64.0GB                Memory Used: 0B              
+   Walltime requested: 00:03:00            Walltime Used: 00:10:59        
+   JobFS requested:    100.0MB                JobFS used: 0B              
+======================================================================================
